@@ -8,6 +8,10 @@ import (
 type UserRepository struct {
 }
 
+func NewUserMongoRepository() UserRepository {
+	return UserRepository{}
+}
+
 func (UserRepository) Create(ctx context.Context, user models.User) (models.User, error) {
 	//TODO implement me
 	panic("implement me")
