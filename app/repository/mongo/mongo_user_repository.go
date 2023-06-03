@@ -16,15 +16,15 @@ type UserRepository struct {
 	db *mongo.Database
 }
 
-var instance *UserRepository
+var userRepositoryInstance *UserRepository
 var userCollection = "users"
 
 func NewUserMongoRepository() *UserRepository {
-	if instance == nil {
-		instance.Init()
+	if userRepositoryInstance == nil {
+		userRepositoryInstance.Init()
 	}
-	fmt.Println("Retrieving mongo repository instance")
-	return instance
+	fmt.Println("Retrieving mongo repository userRepositoryInstance")
+	return userRepositoryInstance
 }
 
 func (r *UserRepository) Init() {
@@ -37,7 +37,7 @@ func (r *UserRepository) Init() {
 		panic(err)
 	}
 	fmt.Println("Initialized mongo client")
-	instance = &UserRepository{
+	userRepositoryInstance = &UserRepository{
 		db: client.Database(env.Conf.DbName),
 	}
 }

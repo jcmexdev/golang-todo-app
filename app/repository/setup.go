@@ -8,6 +8,7 @@ import (
 
 type Repositories struct {
 	UserRepository UserRepository
+	TaskRepository TaskRepository
 }
 
 var implementations Repositories
@@ -17,6 +18,7 @@ func LoadConfiguration() {
 	case commons.MongoDbDriver:
 		implementations = Repositories{
 			UserRepository: mongo.NewUserMongoRepository(),
+			TaskRepository: mongo.NewTaskMongoRepository(),
 		}
 	default:
 		panic("Invalid db driver for repository implementation")
