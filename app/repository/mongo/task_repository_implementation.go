@@ -79,16 +79,6 @@ func (r *TaskRepository) FindById(ctx context.Context, id interface{}) (*models.
 	return nil, nil
 }
 
-func (r *TaskRepository) FindAll(ctx context.Context) ([]*models.Task, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r *TaskRepository) Close() error {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (r *TaskRepository) FindAllByUserId(ctx context.Context, userId string) ([]*models.Task, error) {
 	type UserWithTasks struct {
 		Tasks []*models.Task `bson:"tasks"`

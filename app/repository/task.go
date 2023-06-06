@@ -6,7 +6,9 @@ import (
 )
 
 type TaskRepository interface {
-	BaseRepository[models.Task]
+	CreateAction[models.Task]
+	UpdateAction[models.Task]
+	FindByIdAction[models.Task]
 	FindAllByUserId(ctx context.Context, userId string) ([]*models.Task, error)
 	Delete(ctx context.Context, id string) error
 }

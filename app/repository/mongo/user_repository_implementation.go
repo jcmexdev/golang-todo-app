@@ -2,14 +2,11 @@ package mongo
 
 import (
 	"context"
-	"fmt"
-	"github.com/jxmexdev/go-todo-app/app/env"
+	"github.com/jxmexdev/go-todo-app/app/db"
 	"github.com/jxmexdev/go-todo-app/app/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"time"
 )
 
 type UserRepository struct {
@@ -21,29 +18,9 @@ var userCollection = "users"
 
 func NewUserMongoRepository() *UserRepository {
 	if userRepositoryInstance == nil {
-		userRepositoryInstance.Init()
+		userRepositoryInstance = &UserRepository{db: db.GetMongoDbInstance()}
 	}
-	fmt.Println("Retrieving mongo repository userRepositoryInstance")
 	return userRepositoryInstance
-}
-
-func (r *UserRepository) Init() {
-	dbUrl := r.getMongoDBConnectionString()
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	clientOptions := options.Client().ApplyURI(dbUrl)
-	client, err := mongo.Connect(ctx, clientOptions)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Initialized mongo client")
-	userRepositoryInstance = &UserRepository{
-		db: client.Database(env.Conf.DbName),
-	}
-}
-
-func (r *UserRepository) getMongoDBConnectionString() string {
-	return fmt.Sprintf("mongodb://%s:%s@%s:%s/", env.Conf.DbUser, env.Conf.DbPassword, env.Conf.DbHost, env.Conf.DbPort)
 }
 
 func (r *UserRepository) Create(ctx context.Context, user *models.User) (*models.User, error) {
@@ -60,16 +37,24 @@ func (r *UserRepository) Create(ctx context.Context, user *models.User) (*models
 }
 
 func (r *UserRepository) Update(ctx context.Context, user *models.User) (*models.User, error) {
+	id, err := primitive.ObjectIDFromHex(user.ID)
+	if err != nil {
+		return nil, err
+	}
 	updatedUser := bson.M{"$set": bson.M{
 		"email": user.Email,
 	}}
-	_, err := r.db.Collection(userCollection).UpdateOne(ctx, bson.M{"_id": user.ID}, updatedUser)
+	_, err = r.db.Collection(userCollection).UpdateOne(ctx, bson.M{"_id": id}, updatedUser)
 	return user, err
 }
 
 func (r *UserRepository) FindById(ctx context.Context, id interface{}) (*models.User, error) {
 	var user *models.User
-	err := r.db.Collection(userCollection).FindOne(ctx, bson.M{"_id": id}).Decode(&user)
+	id, err := primitive.ObjectIDFromHex(id.(string))
+	if err != nil {
+		return nil, err
+	}
+	err = r.db.Collection(userCollection).FindOne(ctx, bson.M{"_id": id}).Decode(&user)
 	if err != nil {
 		return nil, err
 	}

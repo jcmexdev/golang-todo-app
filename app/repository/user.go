@@ -6,7 +6,11 @@ import (
 )
 
 type UserRepository interface {
-	BaseRepository[models.User]
+	CreateAction[models.User]
+	UpdateAction[models.User]
+	FindByIdAction[models.User]
+	FindAllAction[models.User]
+	CloseAction
 	FindByEmail(ctx context.Context, email string) (*models.User, error)
 }
 
